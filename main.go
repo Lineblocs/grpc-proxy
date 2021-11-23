@@ -24,11 +24,17 @@ var db* sql.DB;
 
 func getAvailableMediaserver() (*lineblocs.MediaServer, error) {
 	servers, err := lineblocs.CreateMediaServers()
-
+fmt.Println(servers)
 	if err != nil {
 		return nil,err
 	}
+
+	fmt.Println( "Routed IP: " + servers[0].PrivateIpAddress )
 	return servers[0], nil
+	/*
+	return &lineblocs.MediaServer{
+		PrivateIpAddress: "155.138.144.56" },nil
+		*/
 }
 func proxyWebsocket() {
 	server, err := getAvailableMediaserver()
@@ -36,13 +42,22 @@ func proxyWebsocket() {
 		log.Fatalln(err)
 	}
 	splitted := strings.Split(server.PrivateIpAddress,":")
-	addr:= splitted[0]
+	addr:= "ws://" + splitted[0] + ":8018"
+	fmt.Println("WS addr: " + addr)
+	//addr:= "ws://155.138.144.56:8018"
 	backend, err := url.Parse(addr)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	err = http.ListenAndServe(":8018", websocketproxy.NewProxy(backend))
+	getWSAddr := func() *url.URL {
+		return nil
+	}
+
+	fmt.Println(getWSAddr)
+
+	//err = http.ListenAndServe(":8017", websocketproxy.NewProxy(backend, getWSAddr))
+	err = http.ListenAndServe(":8017", websocketproxy.NewProxy(backend))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -86,7 +101,7 @@ func LineblocsStreamDirector(ctx context.Context, fullMethodName string) (contex
 		ip:= splitted[0]+":9000"
 
 		fmt.Println("routing to server: " + ip)
-		conn, err := grpc.DialContext(ctx, ip, grpc.WithCodec(proxy.Codec()))
+		conn, err := grpc.DialContext(ctx, ip, grpc.WithCodec(proxy.Codec()), grpc.WithInsecure())
 		return outCtx, conn, err
 	}
 	return nil, nil, grpc.Errorf(codes.Unimplemented, "Unknown method")
@@ -103,6 +118,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+	fmt.Println(lis)
+
 	fmt.Println("started listener")
 	//grpcServer := grpc.NewServer()
 	//grpcServer := grpc.NewServer(grpc.CustomCodec(proxy.Codec()))
@@ -110,7 +127,41 @@ func main() {
 	grpcServer := grpc.NewServer(grpc.CustomCodec(proxy.Codec()))
 	proxy.RegisterService(grpcServer, director,
 		"grpc.Lineblocs",
-		"createBridge", "Ping", "PingError", "PingList")
+"createBridge",
+"createCall",
+"addChannel",
+"playRecording",
+"getChannel",
+"createConference",
+"channel_getBridge",
+"channel_removeFromBridge",
+"channel_playTTS",
+"channel_startAcceptingInput",
+"channel_removeDTMFListeners",
+"channel_automateCallHangup",
+"channel_gotoFlowWidget",
+"channel_startFlow",
+"channel_startRinging",
+"channel_stopRinging",
+"channel_record",
+"channel_hangup",
+"bridge_addChannel",
+"bridge_addChannels",
+"bridge_removeChannel",
+"bridge_playTTS",
+"bridge_automateLegAHangup",
+"bridge_automateLegBHangup",
+"bridge_hangupChannel",
+"bridge_hangupAllChannels",
+"bridge_getChannels",
+"bridge_destroy",
+"bridge_record",
+"bridge_attachEventListener",
+"conference_addWaitingParticipant",
+"conference_addParticipant",
+"conference_setModeratorInConf",
+"conference_attachEventListener",
+"recording_stop")
  	//LineblocsRegisterService(grpcServer)
 	//RegisterLineblocsServer(grpcServer, s)
 
