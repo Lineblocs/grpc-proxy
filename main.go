@@ -24,17 +24,11 @@ var db* sql.DB;
 
 func getAvailableMediaserver() (*lineblocs.MediaServer, error) {
 	servers, err := lineblocs.CreateMediaServers()
-fmt.Println(servers)
 	if err != nil {
 		return nil,err
 	}
 
-	fmt.Println( "Routed IP: " + servers[0].PrivateIpAddress )
 	return servers[0], nil
-	/*
-	return &lineblocs.MediaServer{
-		PrivateIpAddress: "155.138.144.56" },nil
-		*/
 }
 func proxyWebsocket() {
 	server, err := getAvailableMediaserver()
@@ -44,7 +38,6 @@ func proxyWebsocket() {
 	splitted := strings.Split(server.PrivateIpAddress,":")
 	addr:= "ws://" + splitted[0] + ":8018"
 	fmt.Println("WS addr: " + addr)
-	//addr:= "ws://155.138.144.56:8018"
 	backend, err := url.Parse(addr)
 	if err != nil {
 		log.Fatalln(err)
@@ -53,8 +46,6 @@ func proxyWebsocket() {
 	getWSAddr := func() *url.URL {
 		return nil
 	}
-
-	fmt.Println(getWSAddr)
 
 	//err = http.ListenAndServe(":8017", websocketproxy.NewProxy(backend, getWSAddr))
 	err = http.ListenAndServe(":8017", websocketproxy.NewProxy(backend))
@@ -118,7 +109,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	fmt.Println(lis)
 
 	fmt.Println("started listener")
 	//grpcServer := grpc.NewServer()
