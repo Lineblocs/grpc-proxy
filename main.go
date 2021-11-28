@@ -22,6 +22,10 @@ var (
 )
 var db* sql.DB;
 
+func healthz(w http.ResponseWriter, r *http.Request) {
+  w.Header().Set("Content-Type", "text/plain")
+  fmt.Fprintf(w, "OK\n")
+}
 func getAvailableMediaserver() (*lineblocs.MediaServer, error) {
 	servers, err := lineblocs.CreateMediaServers()
 	if err != nil {
@@ -43,10 +47,13 @@ func proxyWebsocket() {
 		log.Fatalln(err)
 	}
 
+	/*
 	getWSAddr := func() *url.URL {
 		return nil
 	}
+	*/
 
+	http.HandleFunc("/healthz", healthz)
 	//err = http.ListenAndServe(":8017", websocketproxy.NewProxy(backend, getWSAddr))
 	err = http.ListenAndServe(":8017", websocketproxy.NewProxy(backend))
 	if err != nil {
