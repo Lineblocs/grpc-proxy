@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 		"github.com/koding/websocketproxy"
-	lineblocs "bitbucket.org/infinitet3ch/lineblocs-go-helpers"
+	lineblocs "github.com/Lineblocs/go-helpers"
 )
 
 var (
