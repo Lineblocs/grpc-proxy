@@ -32,7 +32,14 @@ func getAvailableMediaserver() (*lineblocs.MediaServer, error) {
 		return nil,err
 	}
 
-	return servers[0], nil
+	if len(servers)>0 {
+		return servers[0], nil
+	}
+	
+	mediaServer := &lineblocs.MediaServer{
+		PrivateIpAddress: "127.0.0.1",
+	}
+	return mediaServer, nil
 }
 func proxyWebsocket() {
 	server, err := getAvailableMediaserver()
